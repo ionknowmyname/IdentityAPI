@@ -1,0 +1,93 @@
+package com.faithfulolaleru.IdentityAPI.appUser;
+
+import com.faithfulolaleru.IdentityAPI.dto.RegistrationRequest;
+import com.faithfulolaleru.IdentityAPI.dto.RegistrationResponse;
+import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
+import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
+import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
+@Service
+@AllArgsConstructor
+public class AppUserService implements UserDetailsService {
+
+    private final AppUserRepository appUserRepository;
+
+    private final PasswordEncoder passwordEncoder;
+    // private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+
+
+    private final ConfirmationTokenService confirmationTokenService;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return appUserRepository.findByEmail(email)
+//                .map(appUser -> withUsername(appUser.getEmail())
+//                        .password(appUser.getPassword())
+//                        .authorities(getAuthorities(appUser))
+//                        .credentialsExpired(false)
+//                        .build())
+                .orElseThrow(() -> new GeneralException(
+                        HttpStatus.BAD_REQUEST,
+                        ErrorResponse.ERROR_INVALID_USER_CREDENTIALS,
+                        "Check your email & password"));
+
+        // no need to map appUserEntity to userDetails coz now appUserEntity extends userDetails
+    }
+
+    public String signUpAppUser(AppUserEntity entity) {
+
+        boolean userExist = appUserRepository.existsByEmail(entity.getEmail());
+        if(userExist) {
+            // TODO check if attributes are the same and
+            // TODO if email not confirmed send confirmation email.
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_USER_ALREADY_EXIST,
+                    "AppUser with email already exists");
+        }
+
+        entity.setPassword(passwordEncoder.encode(entity.getPassword()));
+
+        appUserRepository.save(entity);
+
+        //TODO : send confirmation token
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(
+                token,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(15),
+                appUser
+        );
+
+        confirmationTokenService.save(confirmationToken);
+
+        //TODO : send email
+
+        return token;
+    }
+
+    public int activateAppUser(String email) {
+        return appUserRepository.enableAppUser(email);
+    }
+
+    private Collection<? extends SimpleGrantedAuthority> getAuthorities(AppUserEntity appUser) {
+        Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority(appUser.getAppUserRole().name()));
+
+        return authorities;
+    }
+}
