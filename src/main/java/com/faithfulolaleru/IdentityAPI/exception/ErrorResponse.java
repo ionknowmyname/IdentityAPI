@@ -17,7 +17,7 @@ public class ErrorResponse {
     public static final String ERROR_USER_ALREADY_EXIST = "USER_ALREADY_EXISTS";
     public static final String ERROR_USER_NOT_EXIST = "USER_DOES_NOT_EXIST";
 
-    public static final String ERROR_ROLE_NOT_EXIST = "ROLE_DOES_NOT_EXIST";
+    public static final String ERROR_OTP_CREATION_FAILED = "OTP_CREATION_FAILED";
     public static final String ERROR_INVALID_USER_CREDENTIALS = "INVALID_USERNAME_PASSWORD";
 
     public static final String ERROR_INVALID_EMAIL = "INVALID_EMAIL";

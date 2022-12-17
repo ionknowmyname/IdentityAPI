@@ -4,6 +4,8 @@ import com.faithfulolaleru.IdentityAPI.dto.RegistrationRequest;
 import com.faithfulolaleru.IdentityAPI.dto.RegistrationResponse;
 import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
 import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
+import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
+import com.faithfulolaleru.IdentityAPI.otp.OtpService;
 import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,9 +32,7 @@ public class AppUserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     // private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-
-
-    private final ConfirmationTokenService confirmationTokenService;
+    private final OtpService otpService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -64,20 +64,26 @@ public class AppUserService implements UserDetailsService {
 
         appUserRepository.save(entity);
 
-        //TODO : send confirmation token
-        String token = UUID.randomUUID().toString();
-        ConfirmationToken confirmationToken = new ConfirmationToken(
-                token,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
-                appUser
-        );
 
-        confirmationTokenService.save(confirmationToken);
+        // Create OTP for AppUser
+
+        String otp = UUID.randomUUID().toString();
+        OtpEntity otpEntity = OtpEntity.builder()
+                .otp(otp)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .build();
+
+        boolean isSaved = otpService.save(otpEntity);
+
+        if(!isSaved) {
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_OTP_CREATION_FAILED,
+                    "OTP was not saved Successfully");
+        }
 
         //TODO : send email
 
-        return token;
+        return otp;
     }
 
     public int activateAppUser(String email) {
