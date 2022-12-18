@@ -4,13 +4,17 @@ import com.faithfulolaleru.IdentityAPI.appUser.AppUserEntity;
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserRole;
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserService;
 import com.faithfulolaleru.IdentityAPI.dto.RegistrationRequest;
-import com.faithfulolaleru.IdentityAPI.dto.RegistrationResponse;
 import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
 import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
+import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
+import com.faithfulolaleru.IdentityAPI.otp.OtpService;
 import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -20,7 +24,9 @@ public class RegistrationService {
 
     private final AppUserService appUserService;
 
-    public RegistrationResponse registerAppUser(RegistrationRequest request) {
+    private final OtpService otpService;
+
+    public String registerAppUser(RegistrationRequest request) {
 
         boolean emailValidated = emailValidator.test(request.getEmail());
         if(!emailValidated) {
@@ -38,6 +44,15 @@ public class RegistrationService {
                         .build()
         );
 
+
+        return otp;
+    }
+
+    @Transactional
+    public String validateOtp(String otp, Long userId) {
+
+        AppUserEntity foundAppUser = appUserService.findUserByUserId(userId);
+        OtpEntity foundOtpEntity = otpService.findByOtpAndAppUser(otp, foundAppUser);
 
     }
 }

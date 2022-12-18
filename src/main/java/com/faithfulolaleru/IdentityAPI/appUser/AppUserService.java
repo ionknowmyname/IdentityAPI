@@ -62,7 +62,7 @@ public class AppUserService implements UserDetailsService {
 
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
 
-        appUserRepository.save(entity);
+        AppUserEntity savedAppUser = appUserRepository.save(entity);
 
 
         // Create OTP for AppUser
@@ -70,6 +70,7 @@ public class AppUserService implements UserDetailsService {
         String otp = UUID.randomUUID().toString();
         OtpEntity otpEntity = OtpEntity.builder()
                 .otp(otp)
+                .appUser(savedAppUser)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .build();
@@ -88,6 +89,12 @@ public class AppUserService implements UserDetailsService {
 
     public int activateAppUser(String email) {
         return appUserRepository.enableAppUser(email);
+    }
+
+    public AppUserEntity findUserByUserId(Long userId) {
+        return appUserRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
+                        ErrorResponse.ERROR_USER_NOT_EXIST, "User with id not found"));
     }
 
     private Collection<? extends SimpleGrantedAuthority> getAuthorities(AppUserEntity appUser) {

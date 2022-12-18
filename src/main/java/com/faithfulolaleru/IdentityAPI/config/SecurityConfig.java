@@ -37,7 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/api/v1/register").permitAll()
+                .requestMatchers("/api/v1/register/**").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationManager(authenticationManager(http, passwordEncoder, appUserService))

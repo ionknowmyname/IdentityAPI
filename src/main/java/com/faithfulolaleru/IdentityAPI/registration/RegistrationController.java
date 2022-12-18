@@ -6,10 +6,7 @@ import com.faithfulolaleru.IdentityAPI.dto.RegistrationResponse;
 import com.faithfulolaleru.IdentityAPI.response.AppResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "api/v1/register")
@@ -18,16 +15,31 @@ public class RegistrationController {
 
     private final RegistrationService registrationService;
 
+    private final static String responseMessage = "App user token is %s";
+
 
     @PostMapping("/api/v1/register")
     public AppResponse<?> registerAppUser(@RequestBody RegistrationRequest requestDto) {
 
-        RegistrationResponse response = registrationService.registerAppUser(requestDto);
+        String response = registrationService.registerAppUser(requestDto);
 
         return AppResponse.builder()
                 .statusCode(HttpStatus.CREATED.value())
                 .httpStatus(HttpStatus.CREATED)
-                .data(response)
+                .message(String.format(responseMessage, response))
+                .build();
+    }
+
+    @PostMapping("/api/v1/register/validateOtp")
+    public AppResponse<?> validateOtp(@RequestParam("otp") String otp,
+                                      @RequestParam("userId") Long userId) {
+
+        String response = registrationService.validateOtp(otp, userId);
+
+        return AppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .httpStatus(HttpStatus.OK)
+                .message(response)
                 .build();
     }
 }
