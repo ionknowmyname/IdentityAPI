@@ -41,6 +41,6 @@ public record OtpService(OtpRepository otpRepository) {
 
         return otpRepository.findByOtpAndAppUser(otp, appUser)
             .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
-                        ErrorResponse.ERROR_USER_OTP_NOT_EXIST, "User with Otp not found"));
+                        ErrorResponse.ERROR_OTP, "User with Otp not found"));
     }
 }

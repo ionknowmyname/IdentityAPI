@@ -58,7 +58,7 @@ public class Utils {
             return "+" + phoneNumber;
         } else {
             throw new GeneralException(HttpStatus.BAD_REQUEST,
-                    ErrorResponse.ERROR_CODE_INVALID_MSISDN,
+                    ErrorResponse.ERROR_PHONE_NUMBERg,
                     "Please Check the Phone number again");
         }
     }

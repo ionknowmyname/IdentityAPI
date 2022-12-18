@@ -11,18 +11,14 @@ import org.springframework.http.HttpStatus;
 public class ErrorResponse {
 
 
-    public static final String ERROR_CODE_INVALID_MSISDN = "INVALID_MSISDN";
+    public static final String ERROR_PHONE_NUMBER = "PHONE_NUMBER_ERROR_ENCOUNTERED";
 
+    public static final String ERROR_APP_USER = "APP_USER_ERROR_ENCOUNTERED";
 
-    public static final String ERROR_USER_ALREADY_EXIST = "USER_ALREADY_EXISTS";
-    public static final String ERROR_USER_NOT_EXIST = "USER_DOES_NOT_EXIST";
+    public static final String ERROR_OTP = "OTP_ERROR_ENCOUNTERED";
 
-    public static final String ERROR_USER_OTP_NOT_EXIST = "USER_WITH_OTP_DOES_NOT_EXIST";
+    public static final String ERROR_EMAIL = "EMAIL_ERROR_ENCOUNTERED";
 
-    public static final String ERROR_OTP_CREATION_FAILED = "OTP_CREATION_FAILED";
-    public static final String ERROR_INVALID_USER_CREDENTIALS = "INVALID_USERNAME_PASSWORD";
-
-    public static final String ERROR_INVALID_EMAIL = "INVALID_EMAIL";
 
 
     private String error;

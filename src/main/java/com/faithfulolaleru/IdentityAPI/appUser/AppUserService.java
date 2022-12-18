@@ -44,8 +44,8 @@ public class AppUserService implements UserDetailsService {
 //                        .build())
                 .orElseThrow(() -> new GeneralException(
                         HttpStatus.BAD_REQUEST,
-                        ErrorResponse.ERROR_INVALID_USER_CREDENTIALS,
-                        "Check your email & password"));
+                        ErrorResponse.ERROR_APP_USER,
+                        "Invalid User Credentials"));
 
         // no need to map appUserEntity to userDetails coz now appUserEntity extends userDetails
     }
@@ -56,7 +56,7 @@ public class AppUserService implements UserDetailsService {
         if(userExist) {
             // TODO check if attributes are the same and
             // TODO if email not confirmed send confirmation email.
-            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_USER_ALREADY_EXIST,
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_APP_USER,
                     "AppUser with email already exists");
         }
 
@@ -78,7 +78,7 @@ public class AppUserService implements UserDetailsService {
         boolean isSaved = otpService.save(otpEntity);
 
         if(!isSaved) {
-            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_OTP_CREATION_FAILED,
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_OTP,
                     "OTP was not saved Successfully");
         }
 
@@ -94,7 +94,7 @@ public class AppUserService implements UserDetailsService {
     public AppUserEntity findUserByUserId(Long userId) {
         return appUserRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
-                        ErrorResponse.ERROR_USER_NOT_EXIST, "User with id not found"));
+                        ErrorResponse.ERROR_APP_USER, "User with id not found"));
     }
 
     private Collection<? extends SimpleGrantedAuthority> getAuthorities(AppUserEntity appUser) {

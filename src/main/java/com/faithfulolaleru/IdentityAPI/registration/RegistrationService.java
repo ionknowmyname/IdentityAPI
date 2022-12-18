@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,7 +31,7 @@ public class RegistrationService {
 
         boolean emailValidated = emailValidator.test(request.getEmail());
         if(!emailValidated) {
-            throw new GeneralException(HttpStatus.BAD_REQUEST, ErrorResponse.ERROR_INVALID_EMAIL, "Email not Valid");
+            throw new GeneralException(HttpStatus.BAD_REQUEST, ErrorResponse.ERROR_EMAIL, "Email not Valid");
         }
 
         String otp = appUserService.signUpAppUser(
@@ -54,5 +55,14 @@ public class RegistrationService {
         AppUserEntity foundAppUser = appUserService.findUserByUserId(userId);
         OtpEntity foundOtpEntity = otpService.findByOtpAndAppUser(otp, foundAppUser);
 
+        if(foundOtpEntity.getConfirmedAt() != null) {
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_EMAIL,
+                    "Email is already validated");
+        }
+
+        LocalDateTime expiresAt = foundOtpEntity.getExpiresAt();
+
+
+        return "Otp has been Validated";
     }
 }
