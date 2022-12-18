@@ -58,7 +58,7 @@ public class Utils {
             return "+" + phoneNumber;
         } else {
             throw new GeneralException(HttpStatus.BAD_REQUEST,
-                    ErrorResponse.ERROR_PHONE_NUMBERg,
+                    ErrorResponse.ERROR_PHONE_NUMBER,
                     "Please Check the Phone number again");
         }
     }

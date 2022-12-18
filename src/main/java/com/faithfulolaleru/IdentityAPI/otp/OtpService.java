@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,5 +43,9 @@ public record OtpService(OtpRepository otpRepository) {
         return otpRepository.findByOtpAndAppUser(otp, appUser)
             .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
                         ErrorResponse.ERROR_OTP, "User with Otp not found"));
+    }
+
+    public int setConfirmedAt(String otp) {
+        return otpRepository.updateConfirmedAt(otp, LocalDateTime.now());
     }
 }

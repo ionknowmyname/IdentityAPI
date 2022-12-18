@@ -21,6 +21,6 @@ public interface OtpRepository extends JpaRepository<OtpEntity, Long> {
     @Modifying
     @Query("UPDATE OtpEntity c " +
             "SET c.confirmedAt = ?2 " +
-            "WHERE c.token = ?1")
-    int updateConfirmedAt(String token, LocalDateTime confirmedTime);
+            "WHERE c.otp = ?1")
+    int updateConfirmedAt(String otp, LocalDateTime confirmedTime);
 }

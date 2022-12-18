@@ -61,8 +61,17 @@ public class RegistrationService {
         }
 
         LocalDateTime expiresAt = foundOtpEntity.getExpiresAt();
+        if(expiresAt.isBefore(LocalDateTime.now())) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, ErrorResponse.ERROR_OTP,
+                    "Otp is expired");
+        }
 
+        otpService.setConfirmedAt(otp);
+
+        appUserService.activateAppUser(foundOtpEntity.getAppUser().getEmail());
 
         return "Otp has been Validated";
     }
+
+
 }
