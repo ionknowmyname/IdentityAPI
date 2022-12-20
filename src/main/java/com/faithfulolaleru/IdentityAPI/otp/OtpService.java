@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-//@AllArgsConstructor
+@AllArgsConstructor
 //@Slf4j
-public record OtpService(OtpRepository otpRepository) {
+public class OtpService {
+
+    private final OtpRepository otpRepository;
+
 
     public boolean save(OtpEntity entity) {
         try {
