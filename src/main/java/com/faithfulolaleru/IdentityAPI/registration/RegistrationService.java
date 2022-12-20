@@ -9,11 +9,11 @@ import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
 import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
 import com.faithfulolaleru.IdentityAPI.otp.OtpService;
 import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;

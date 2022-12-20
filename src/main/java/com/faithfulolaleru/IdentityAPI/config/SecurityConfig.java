@@ -13,18 +13,18 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
-//@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig {
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {  // extends WebSecurityConfigurerAdapter
 
 
     private final AppUserService appUserService;
@@ -36,23 +36,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/api/v1/register/**").permitAll()
-                //.requestMatchers("/api/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .authenticationManager(authenticationManager(http, passwordEncoder, appUserService))
-            .authenticationProvider(authenticationProvider())  // comment out manager & provider as needed
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        /*
 
         http.csrf()
             .disable()
             .authorizeRequests()
-            .antMatchers("/").permitAll()   //.hasRole("ADMIN")   // .hasAuthority("ADMIN")
-            .antMatchers("/user/**").permitAll()  //.hasAnyRole("USER", "ADMIN")   //.hasAnyAuthority("USER", "ADMIN")("USER", "ADMIN")
-            .antMatchers("/login/**").permitAll()  //.anonymous()
+            .antMatchers("/api/v1/register/**").permitAll()   //.hasRole("ADMIN")   // .hasAuthority("ADMIN")
+            //.antMatchers("/user/**").permitAll()  //.hasAnyRole("USER", "ADMIN")   //.hasAnyAuthority("USER", "ADMIN")("USER", "ADMIN")
+            //.antMatchers("/login/**").permitAll()  //.anonymous()
             .anyRequest().authenticated()
             .and().httpBasic()
             .and().sessionManagement()
@@ -60,7 +51,7 @@ public class SecurityConfig {
 
         // http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        */
+
 
         return http.build();
     }
