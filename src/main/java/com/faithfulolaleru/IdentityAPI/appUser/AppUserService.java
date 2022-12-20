@@ -1,12 +1,11 @@
 package com.faithfulolaleru.IdentityAPI.appUser;
 
-import com.faithfulolaleru.IdentityAPI.dto.RegistrationRequest;
-import com.faithfulolaleru.IdentityAPI.dto.RegistrationResponse;
 import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
 import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
 import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
 import com.faithfulolaleru.IdentityAPI.otp.OtpService;
 import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
+import com.faithfulolaleru.IdentityAPI.utils.Utils;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,10 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -50,7 +46,7 @@ public class AppUserService implements UserDetailsService {
         // no need to map appUserEntity to userDetails coz now appUserEntity extends userDetails
     }
 
-    public String signUpAppUser(AppUserEntity entity) {
+    public Map<String, Object> signUpAppUser(AppUserEntity entity) {
 
         boolean userExist = appUserRepository.existsByEmail(entity.getEmail());
         if(userExist) {
@@ -68,6 +64,8 @@ public class AppUserService implements UserDetailsService {
         // Create OTP for AppUser
 
         String otp = UUID.randomUUID().toString();
+        String otp2 = Utils.generateOtp();
+
         OtpEntity otpEntity = OtpEntity.builder()
                 .otp(otp)
                 .appUser(savedAppUser)
@@ -84,7 +82,11 @@ public class AppUserService implements UserDetailsService {
 
         //TODO : send email
 
-        return otp;
+        Map<String, Object> response = new HashMap<>();
+        response.put("otp", otp);
+        response.put("userId", savedAppUser.getId());
+
+        return response;
     }
 
     public int activateAppUser(String email) {

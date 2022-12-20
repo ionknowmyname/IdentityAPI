@@ -38,6 +38,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/api/v1/register/**").permitAll()
+                //.requestMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationManager(authenticationManager(http, passwordEncoder, appUserService))

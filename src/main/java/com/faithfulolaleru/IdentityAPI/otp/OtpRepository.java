@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,8 +18,6 @@ public interface OtpRepository extends JpaRepository<OtpEntity, Long> {
 
     @Transactional
     @Modifying
-    @Query("UPDATE OtpEntity c " +
-            "SET c.confirmedAt = ?2 " +
-            "WHERE c.otp = ?1")
+    @Query("UPDATE otp_table c SET c.confirmedAt = ?2 WHERE c.otp = ?1")
     int updateConfirmedAt(String otp, LocalDateTime confirmedTime);
 }

@@ -18,7 +18,7 @@ public class RegistrationController {
     private final static String responseMessage = "App user token is %s";
 
 
-    @PostMapping("/api/v1/register")
+    @PostMapping("/")
     public AppResponse<?> registerAppUser(@RequestBody RegistrationRequest requestDto) {
 
         String response = registrationService.registerAppUser(requestDto);
@@ -30,7 +30,7 @@ public class RegistrationController {
                 .build();
     }
 
-    @PostMapping("/api/v1/register/validateOtp")
+    @PostMapping("/validateOtp")
     public AppResponse<?> validateOtp(@RequestParam("otp") String otp,
                                       @RequestParam("userId") Long userId) {
 

@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
-    public static String generatePinCode() {
+    public static String generateOtp() {
         SecureRandom rnd = new SecureRandom();
         int number = rnd.nextInt(999999);
         return String.format("%06d", number);
