@@ -84,7 +84,8 @@ public class AppUserService implements UserDetailsService {
 
         Map<String, Object> response = new HashMap<>();
         response.put("otp", otp);
-        response.put("userId", savedAppUser.getId());
+        response.put("userEmail", savedAppUser.getEmail());
+        response.put("firstname", savedAppUser.getFirstName());
 
         return response;
     }
@@ -104,5 +105,11 @@ public class AppUserService implements UserDetailsService {
         authorities.add(new SimpleGrantedAuthority(appUser.getAppUserRole().name()));
 
         return authorities;
+    }
+
+    public AppUserEntity findUserByEmail(String userEmail) {
+        return appUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
+                        ErrorResponse.ERROR_APP_USER, "User with email not found"));
     }
 }

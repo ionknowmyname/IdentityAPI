@@ -15,7 +15,7 @@ public class RegistrationController {
 
     private final RegistrationService registrationService;
 
-    private final static String responseMessage = "App user token is %s";
+    private final static String responseMessage = "App user token is '%s'";
 
 
     @PostMapping("/")
@@ -32,9 +32,9 @@ public class RegistrationController {
 
     @PostMapping("/validateOtp")
     public AppResponse<?> validateOtp(@RequestParam("otp") String otp,
-                                      @RequestParam("userId") Long userId) {
+                                      @RequestParam("userEmail") String userEmail) {
 
-        String response = registrationService.validateOtp(otp, userId);
+        String response = registrationService.validateOtp(otp, userEmail);
 
         return AppResponse.builder()
                 .statusCode(HttpStatus.OK.value())
