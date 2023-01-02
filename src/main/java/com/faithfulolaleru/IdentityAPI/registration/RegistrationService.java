@@ -9,6 +9,7 @@ import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
 import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
 import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
 import com.faithfulolaleru.IdentityAPI.otp.OtpService;
+import com.faithfulolaleru.IdentityAPI.sms.SmsSender;
 import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,8 @@ public class RegistrationService {
 
     private final EmailSender emailSender;
 
+    private final SmsSender smsSender;
+
 
     public String registerAppUser(RegistrationRequest request) {
 
@@ -43,29 +46,34 @@ public class RegistrationService {
 
         Map<String, Object> response = appUserService.signUpAppUser(buildAppUserEntity(request));
 
-        String otp = response.get("otp").toString();
+        String emailOtp = response.get("emailOtp").toString();
+        String smsOtp = response.get("smsOtp").toString();
         String userEmail = response.get("userEmail").toString();
         String firstName = response.get("firstname").toString();
+        String phoneNumber = response.get("phoneNumber").toString();
         log.info("firstname --> ", firstName);
 
 
 
-        String link  = "http://localhost:8080/api/v1/register/validateOtp?otp=" + otp + "&userEmail=" + userEmail;
+        String link  = "http://localhost:8080/api/v1/register/validateOtpEmail?otp=" + emailOtp + "&userEmail=" + userEmail;
 
         emailSender.send(userEmail, buildEmail(firstName, link));
 
-        return otp;
+        String message = "Kindly use " + smsOtp + " to validate.";
+        smsSender.send(phoneNumber, message);
+
+        return emailOtp;
     }
 
     @Transactional   // all or nothing for the two services called inside
-    public String validateOtp(String otp, String userEmail) {
+    public String validateOtpEmail(String emailOtp, String userEmail) {
 
         AppUserEntity foundAppUser = appUserService.findUserByEmail(userEmail);
-        OtpEntity foundOtpEntity = otpService.findByOtpAndAppUser(otp, foundAppUser);
+        OtpEntity foundOtpEntity = otpService.findByEmailOtpAndAppUser(emailOtp, foundAppUser);
 
         if(foundOtpEntity.getConfirmedAt() != null) {
             throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_EMAIL,
-                    "Email is already validated");
+                    "AppUser is already validated");
         }
 
         LocalDateTime expiresAt = foundOtpEntity.getExpiresAt();
@@ -74,11 +82,35 @@ public class RegistrationService {
                     "Otp is expired");
         }
 
-        otpService.setConfirmedAt(otp);
+        otpService.setConfirmedAt(emailOtp);
 
         appUserService.activateAppUser(foundOtpEntity.getAppUser().getEmail());
 
-        return "Otp has been Validated";
+        return "Email Otp has been Validated";
+    }
+
+    @Transactional   // all or nothing for the two services called inside
+    public String validateOtpSms(String smsOtp, String phoneNumber) {
+
+        AppUserEntity foundAppUser = appUserService.findUserByPhoneNumber(phoneNumber);
+        OtpEntity foundOtpEntity = otpService.findBySmsOtpAndAppUser(smsOtp, foundAppUser);
+
+        if(foundOtpEntity.getConfirmedAt() != null) {
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_PHONE_NUMBER,
+                    "AppUser is already validated");
+        }
+
+        LocalDateTime expiresAt = foundOtpEntity.getExpiresAt();
+        if(expiresAt.isBefore(LocalDateTime.now())) {
+            throw new GeneralException(HttpStatus.BAD_REQUEST, ErrorResponse.ERROR_OTP,
+                    "Otp is expired");
+        }
+
+        otpService.setConfirmedAt(smsOtp);
+
+        appUserService.activateAppUser(foundOtpEntity.getAppUser().getEmail());
+
+        return "Sms Otp has been Validated";
     }
 
     private AppUserEntity buildAppUserEntity(RegistrationRequest request) {
@@ -229,4 +261,6 @@ public class RegistrationService {
                 "\n" +
                 "</div></div>";
     }
+
+
 }

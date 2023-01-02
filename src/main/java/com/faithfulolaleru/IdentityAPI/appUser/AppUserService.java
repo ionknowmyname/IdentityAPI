@@ -63,11 +63,12 @@ public class AppUserService implements UserDetailsService {
 
         // Create OTP for AppUser
 
-        String otp = UUID.randomUUID().toString();
-        String otp2 = Utils.generateOtp();
+        String emailOtp = UUID.randomUUID().toString();
+        String smsOtp = Utils.generateOtp();
 
         OtpEntity otpEntity = OtpEntity.builder()
-                .otp(otp)
+                .emailOtp(emailOtp)
+                .smsOtp(smsOtp)
                 .appUser(savedAppUser)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusMinutes(15))
@@ -80,12 +81,12 @@ public class AppUserService implements UserDetailsService {
                     "OTP was not saved Successfully");
         }
 
-        //TODO : send email
-
         Map<String, Object> response = new HashMap<>();
-        response.put("otp", otp);
+        response.put("emailOtp", emailOtp);
+        response.put("smsOtp", smsOtp);
         response.put("userEmail", savedAppUser.getEmail());
         response.put("firstname", savedAppUser.getFirstName());
+        response.put("phoneNumber", savedAppUser.getPhoneNumber());
 
         return response;
     }
@@ -109,6 +110,12 @@ public class AppUserService implements UserDetailsService {
 
     public AppUserEntity findUserByEmail(String userEmail) {
         return appUserRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
+                        ErrorResponse.ERROR_APP_USER, "User with email not found"));
+    }
+
+    public AppUserEntity findUserByPhoneNumber(String phoneNumber) {
+        return appUserRepository.findByPhoneNumber(phoneNumber)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
                         ErrorResponse.ERROR_APP_USER, "User with email not found"));
     }

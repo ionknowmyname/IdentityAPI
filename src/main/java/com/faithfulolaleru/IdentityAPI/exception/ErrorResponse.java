@@ -19,6 +19,8 @@ public class ErrorResponse {
 
     public static final String ERROR_EMAIL = "EMAIL_ERROR_ENCOUNTERED";
 
+    public static final String ERROR_SMS = "SMS_ERROR_ENCOUNTERED";
+
 
 
     private String error;

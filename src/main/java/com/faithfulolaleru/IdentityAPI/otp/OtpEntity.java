@@ -30,7 +30,10 @@ public class OtpEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String otp;
+    private String emailOtp;
+
+    @Column(nullable = false)
+    private String smsOtp;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

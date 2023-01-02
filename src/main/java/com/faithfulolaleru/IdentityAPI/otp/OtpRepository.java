@@ -14,10 +14,15 @@ import java.util.Optional;
 public interface OtpRepository extends JpaRepository<OtpEntity, Long> {
 
 
-    Optional<OtpEntity> findByOtpAndAppUser(String otp, AppUserEntity appUser);
+    Optional<OtpEntity> findByEmailOtpAndSmsOtpAndAppUser(String emailOtp, String smsOtp, AppUserEntity appUser);
+
+    Optional<OtpEntity> findByEmailOtpAndAppUser(String emailOtp, AppUserEntity appUser);
+
+    Optional<OtpEntity> findBySmsOtpAndAppUser(String smsOtp, AppUserEntity appUser);
+
 
     @Transactional
     @Modifying
-    @Query("UPDATE otp_table c SET c.confirmedAt = ?2 WHERE c.otp = ?1")
+    @Query("UPDATE otp_table c SET c.confirmedAt = ?2 WHERE c.emailOtp = ?1 OR c.smsOtp = ?1")
     int updateConfirmedAt(String otp, LocalDateTime confirmedTime);
 }

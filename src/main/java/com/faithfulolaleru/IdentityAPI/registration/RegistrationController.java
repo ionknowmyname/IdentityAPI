@@ -30,11 +30,24 @@ public class RegistrationController {
                 .build();
     }
 
-    @PostMapping("/validateOtp")
-    public AppResponse<?> validateOtp(@RequestParam("otp") String otp,
+    @PostMapping("/validateOtpEmail")
+    public AppResponse<?> validateOtpEmail(@RequestParam("otp") String otp,
                                       @RequestParam("userEmail") String userEmail) {
 
-        String response = registrationService.validateOtp(otp, userEmail);
+        String response = registrationService.validateOtpEmail(otp, userEmail);
+
+        return AppResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .httpStatus(HttpStatus.OK)
+                .message(response)
+                .build();
+    }
+
+    @PostMapping("/validateOtpSms")
+    public AppResponse<?> validateOtpSms(@RequestParam("otp") String otp,
+                                      @RequestParam("phoneNumber") String phoneNumber) {
+
+        String response = registrationService.validateOtpSms(otp, phoneNumber);
 
         return AppResponse.builder()
                 .statusCode(HttpStatus.OK.value())
