@@ -26,6 +26,8 @@ public class SmsService implements SmsSender {
     public void send(String receiver, String message) {
 
         Twilio.init(twilioConfig.getAccountSid(), twilioConfig.getAuthToken());
+        log.info("twilio account sid --> {}", twilioConfig.getAccountSid());
+        log.info("twilio account authToken --> {}", twilioConfig.getAuthToken());
 
         String formatNumber = Utils.toMsisdn(receiver);
         Message response;
