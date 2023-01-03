@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface OtpRepository extends JpaRepository<OtpEntity, Long> {
 
 
-    Optional<OtpEntity> findByEmailOtpAndSmsOtpAndAppUser(String emailOtp, String smsOtp, AppUserEntity appUser);
+    Optional<OtpEntity> findByAppUser(AppUserEntity appUser);
 
     Optional<OtpEntity> findByEmailOtpAndAppUser(String emailOtp, AppUserEntity appUser);
 

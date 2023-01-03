@@ -44,7 +44,8 @@ public class OtpEntity {
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
 
-    @ManyToOne
+    // @ManyToOne  // (cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "app_user_id", referencedColumnName = "id")
     private AppUserEntity appUser;
 }

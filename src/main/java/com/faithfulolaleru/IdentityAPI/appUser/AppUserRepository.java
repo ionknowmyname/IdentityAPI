@@ -18,6 +18,8 @@ public interface AppUserRepository extends JpaRepository<AppUserEntity, Long> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByPhoneNumber(String phoneNumber);
+
     @Transactional
     @Modifying
     @Query("UPDATE app_users a SET a.isActive = TRUE WHERE a.email = ?1")

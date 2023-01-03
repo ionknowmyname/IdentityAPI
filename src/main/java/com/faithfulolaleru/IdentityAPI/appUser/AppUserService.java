@@ -1,10 +1,11 @@
 package com.faithfulolaleru.IdentityAPI.appUser;
 
+import com.faithfulolaleru.IdentityAPI.email.EmailSender;
 import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
 import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
 import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
 import com.faithfulolaleru.IdentityAPI.otp.OtpService;
-import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
+import com.faithfulolaleru.IdentityAPI.sms.SmsSender;
 import com.faithfulolaleru.IdentityAPI.utils.Utils;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,9 +27,13 @@ public class AppUserService implements UserDetailsService {
     private final AppUserRepository appUserRepository;
 
     private final PasswordEncoder passwordEncoder;
-    // private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final OtpService otpService;
+
+    private final EmailSender emailSender;
+
+    private final SmsSender smsSender;
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
@@ -48,12 +53,37 @@ public class AppUserService implements UserDetailsService {
 
     public Map<String, Object> signUpAppUser(AppUserEntity entity) {
 
-        boolean userExist = appUserRepository.existsByEmail(entity.getEmail());
-        if(userExist) {
-            // TODO check if attributes are the same and
-            // TODO if email not confirmed send confirmation email.
+        AppUserEntity foundAppUser = appUserRepository.findByEmail(entity.getEmail()).orElse(null);
+        if(foundAppUser != null) {
+            // TODO check if attributes are the same
+
+            // if user exists and not verified, then send Verification Email
+            if(!foundAppUser.isActive()) {
+                OtpEntity foundOtpEntity = otpService.findByAppUser(foundAppUser);
+
+                String link  = "http://localhost:8080/api/v1/register/validateOtpEmail?otp="
+                        + foundOtpEntity.getEmailOtp() + "&userEmail=" + foundAppUser.getEmail();
+
+                emailSender.send(foundAppUser.getEmail(), Utils.buildEmail(foundAppUser.getFirstName(), link));
+            }
+
             throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_APP_USER,
                     "AppUser with email already exists");
+        }
+
+        AppUserEntity foundAppUser2 = appUserRepository.findByPhoneNumber(entity.getPhoneNumber()).orElse(null);
+        if(foundAppUser2 != null) {
+
+            // if user exists and not verified, then send Verification Email
+            if(!foundAppUser2.isActive()) {
+                OtpEntity foundOtpEntity = otpService.findByAppUser(foundAppUser2);
+
+                String message = "Kindly use " + foundOtpEntity.getSmsOtp() + " to validate.";
+                smsSender.send(foundAppUser2.getPhoneNumber(), message);
+            }
+
+            throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_APP_USER,
+                    "AppUser with Phone number already exists");
         }
 
         entity.setPassword(passwordEncoder.encode(entity.getPassword()));
@@ -77,6 +107,12 @@ public class AppUserService implements UserDetailsService {
         boolean isSaved = otpService.save(otpEntity);
 
         if(!isSaved) {
+            // manually rollback and delete appUser that was saved
+            // you can also try @Transactional
+
+            AppUserEntity toDelete = otpEntity.getAppUser();
+            appUserRepository.delete(toDelete);
+
             throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_OTP,
                     "OTP was not saved Successfully");
         }

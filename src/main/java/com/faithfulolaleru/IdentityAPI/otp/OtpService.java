@@ -19,8 +19,8 @@ public class OtpService {
 
     public boolean save(OtpEntity entity) {
         try {
-            OtpEntity foundEntity = otpRepository.findByEmailOtpAndSmsOtpAndAppUser(entity.getEmailOtp(),
-                            entity.getSmsOtp(), entity.getAppUser()).orElse(null);
+            OtpEntity foundEntity = otpRepository.findByAppUser(entity.getAppUser())
+                    .orElse(null);
 
             // email already confirmed for appUser, don't save otp entity
             if (foundEntity != null && foundEntity.getConfirmedAt() != null) {
@@ -44,18 +44,25 @@ public class OtpService {
         }
     }
 
+    public OtpEntity findByAppUser(AppUserEntity appUser) {
+
+        return otpRepository.findByAppUser(appUser)
+                .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
+                        ErrorResponse.ERROR_OTP, "OtpEntity not found for AppUser"));
+    }
+
     public OtpEntity findByEmailOtpAndAppUser(String emailOtp, AppUserEntity appUser) {
 
         return otpRepository.findByEmailOtpAndAppUser(emailOtp, appUser)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
-                        ErrorResponse.ERROR_OTP, "User with Otp not found"));
+                        ErrorResponse.ERROR_OTP, "AppUser with Otp not found"));
     }
 
     public OtpEntity findBySmsOtpAndAppUser(String smsOtp, AppUserEntity appUser) {
 
         return otpRepository.findBySmsOtpAndAppUser(smsOtp, appUser)
                 .orElseThrow(() -> new GeneralException(HttpStatus.NOT_FOUND,
-                        ErrorResponse.ERROR_OTP, "User with Otp not found"));
+                        ErrorResponse.ERROR_OTP, "AppUser with Otp not found"));
     }
 
     public int setConfirmedAt(String otp) {
