@@ -31,42 +31,44 @@ public class SecurityConfig {
 
     private PasswordEncoder passwordEncoder;
 
+    private final JwtAuthFilter jwtFilter;
+
 
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeHttpRequests((requests) -> requests
+        /* http.authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/api/v1/register/**").permitAll()
                 //.requestMatchers("/api/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .authenticationManager(authenticationManager(http, passwordEncoder, appUserService))
+            // .authenticationManager(authenticationManager(http, passwordEncoder, appUserService))
             .authenticationProvider(authenticationProvider())  // comment out manager & provider as needed
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        */
 
-        /*
 
         http.csrf()
             .disable()
-            .authorizeRequests()
-            .antMatchers("/").permitAll()   //.hasRole("ADMIN")   // .hasAuthority("ADMIN")
-            .antMatchers("/user/**").permitAll()  //.hasAnyRole("USER", "ADMIN")   //.hasAnyAuthority("USER", "ADMIN")("USER", "ADMIN")
-            .antMatchers("/login/**").permitAll()  //.anonymous()
+            .authorizeHttpRequests()
+            .requestMatchers("/api/v1/register/**").permitAll()   //.hasRole("ADMIN")   // .hasAuthority("ADMIN")
+            .requestMatchers("/api/v1/login/**").permitAll()  //.hasAnyRole("USER", "ADMIN")   //.hasAnyAuthority("USER", "ADMIN")("USER", "ADMIN")
+            //.requestMatchers("/login/**").permitAll()  //.anonymous()
             .anyRequest().authenticated()
             .and().httpBasic()
             .and().sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .and().authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         // http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        */
+
 
         return http.build();
     }
 
-
-    /*  SOLUTION 1
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration
@@ -75,21 +77,26 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+
+    /*
+
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
+                                                            AppUserService appUserService) throws Exception {
+
+            return http.getSharedObject(AuthenticationManagerBuilder.class)
+                    .userDetailsService(appUserService)
+                    .passwordEncoder(passwordEncoder)
+                    .and()
+                    .build();
+        }
+
     */
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder,
-                                                        AppUserService appUserService) throws Exception {
-
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .userDetailsService(appUserService)
-                .passwordEncoder(passwordEncoder)
-                .and()
-                .build();
-    }
-
-    @Bean
     public DaoAuthenticationProvider authenticationProvider() {
+        // can also return regular AuthenticationProvider
+
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
         authProvider.setUserDetailsService(appUserService);

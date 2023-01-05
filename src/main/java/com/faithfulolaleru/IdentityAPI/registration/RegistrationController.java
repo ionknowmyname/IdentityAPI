@@ -21,12 +21,13 @@ public class RegistrationController {
     @PostMapping("/")
     public AppResponse<?> registerAppUser(@RequestBody RegistrationRequest requestDto) {
 
-        String response = registrationService.registerAppUser(requestDto);
+        RegistrationResponse response = registrationService.registerAppUser(requestDto);
 
         return AppResponse.builder()
                 .statusCode(HttpStatus.CREATED.value())
                 .httpStatus(HttpStatus.CREATED)
-                .message(String.format(responseMessage, response))
+                //.message(String.format(responseMessage, response))
+                .data(response)
                 .build();
     }
 

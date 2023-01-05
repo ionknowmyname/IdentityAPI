@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity(name = "app_users")
 @Data
@@ -58,6 +59,7 @@ public class AppUserEntity implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(appUserRole.name());
 
+        // return List.of(new SimpleGrantedAuthority(appUserRole.name()));
         return Collections.singletonList(authority);
     }
 

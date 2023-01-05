@@ -26,7 +26,6 @@ public class AppUserService implements UserDetailsService {
     private final AppUserRepository appUserRepository;
 
     private final PasswordEncoder passwordEncoder;
-    // private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final OtpService otpService;
 
@@ -44,6 +43,16 @@ public class AppUserService implements UserDetailsService {
                         "Invalid User Credentials"));
 
         // no need to map appUserEntity to userDetails coz now appUserEntity extends userDetails
+    }
+
+    public AppUserEntity findUserByEmail(String email) {
+        return appUserRepository.findByEmail(email)
+            .orElseThrow(() -> new GeneralException(
+                HttpStatus.BAD_REQUEST,
+                ErrorResponse.ERROR_APP_USER,
+                "Invalid User Credentials"
+            ));
+
     }
 
     public Map<String, Object> signUpAppUser(AppUserEntity entity) {
@@ -85,6 +94,7 @@ public class AppUserService implements UserDetailsService {
         Map<String, Object> response = new HashMap<>();
         response.put("otp", otp);
         response.put("userId", savedAppUser.getId());
+        response.put("savedAppUser", savedAppUser);
 
         return response;
     }

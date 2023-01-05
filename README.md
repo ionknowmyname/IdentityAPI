@@ -17,4 +17,4 @@ npm i -g maildev
 
 to start maildev, enter "maildev" in terminal
 
-enter http://0.0.0.0:1080 in browser, email view is there
+enter http://localhost:1080/ in browser, email view is there

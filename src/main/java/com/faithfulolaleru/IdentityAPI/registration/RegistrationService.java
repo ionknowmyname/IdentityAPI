@@ -4,6 +4,7 @@ import com.faithfulolaleru.IdentityAPI.appUser.AppUserEntity;
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserRole;
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserService;
 import com.faithfulolaleru.IdentityAPI.dto.RegistrationRequest;
+import com.faithfulolaleru.IdentityAPI.dto.RegistrationResponse;
 import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
 import com.faithfulolaleru.IdentityAPI.exception.GeneralException;
 import com.faithfulolaleru.IdentityAPI.otp.OtpEntity;
@@ -11,27 +12,30 @@ import com.faithfulolaleru.IdentityAPI.otp.OtpService;
 import com.faithfulolaleru.IdentityAPI.utils.EmailValidator;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
+//@Component
 @Service
 @AllArgsConstructor
 public class RegistrationService {
 
-    private EmailValidator emailValidator;
+    private final EmailValidator emailValidator;
 
     private final AppUserService appUserService;
-
     private final OtpService otpService;
+    private final ModelMapper modelMapper;
 
-    public String registerAppUser(RegistrationRequest request) {
+
+    public RegistrationResponse registerAppUser(RegistrationRequest request) {
 
         boolean emailValidated = emailValidator.test(request.getEmail());
-        if(!emailValidated) {
+        if (!emailValidated) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, ErrorResponse.ERROR_EMAIL, "Email not Valid");
         }
 
@@ -48,11 +52,12 @@ public class RegistrationService {
 
         String otp = response.get("otp").toString();
         String userId = response.get("userId").toString();
+        RegistrationResponse toReturn = modelMapper.map(response.get("savedAppUser"), RegistrationResponse.class);
 
 
-        String link  = "http://localhost:8080/api/v1/register/validateOtp?otp=" + otp + "&userId=" + userId;
+        String link = "http://localhost:8080/api/v1/register/validateOtp?otp=" + otp + "&userId=" + userId;
 
-        return otp;
+        return toReturn;
     }
 
     @Transactional
@@ -61,13 +66,13 @@ public class RegistrationService {
         AppUserEntity foundAppUser = appUserService.findUserByUserId(userId);
         OtpEntity foundOtpEntity = otpService.findByOtpAndAppUser(otp, foundAppUser);
 
-        if(foundOtpEntity.getConfirmedAt() != null) {
+        if (foundOtpEntity.getConfirmedAt() != null) {
             throw new GeneralException(HttpStatus.CONFLICT, ErrorResponse.ERROR_EMAIL,
                     "Email is already validated");
         }
 
         LocalDateTime expiresAt = foundOtpEntity.getExpiresAt();
-        if(expiresAt.isBefore(LocalDateTime.now())) {
+        if (expiresAt.isBefore(LocalDateTime.now())) {
             throw new GeneralException(HttpStatus.BAD_REQUEST, ErrorResponse.ERROR_OTP,
                     "Otp is expired");
         }
