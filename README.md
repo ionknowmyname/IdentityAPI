@@ -14,6 +14,9 @@ master branch is Java 17
 
 java11 branch is Java 11
 
+rabbitmq branch branches off from master branch, so it uses java 17
+
+
 **master branch contains**:<br /><br />
 - java 17 implementation <br />
 - does not send validation email or otp with twilio <br />
@@ -32,3 +35,9 @@ Use mail dev as email server to test. <br />
     npm i -g maildev
 to start maildev, enter "maildev" in terminal <br />
 enter http://localhost:1080/ in browser, email view is there
+<br /><br />
+
+
+**rabbitmq branch contains**:<br /><br />
+rabbitmq implementation, so sends a message to queue after each successful login. 
+Implemented to test rabbitmq
