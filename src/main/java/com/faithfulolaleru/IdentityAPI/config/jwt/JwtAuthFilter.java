@@ -1,4 +1,4 @@
-package com.faithfulolaleru.IdentityAPI.config;
+package com.faithfulolaleru.IdentityAPI.config.jwt;
 
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserService;
 import com.faithfulolaleru.IdentityAPI.config.jwt.JwtService;
