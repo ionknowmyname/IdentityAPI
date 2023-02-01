@@ -1,6 +1,7 @@
 package com.faithfulolaleru.IdentityAPI.config.rabbitmq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -35,6 +36,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
+//    @Value("${spring.rabbitmq.virtual-host}")
+//    private String virtualHost;
+
 
 
     @Bean
@@ -47,10 +51,10 @@ public class RabbitMQConfig {
         return new TopicExchange(exchangeName);
     }
 
-    @Bean
-    public DirectExchange exchange2() {
-        return new DirectExchange(exchangeName);
-    }
+//    @Bean
+//    public DirectExchange exchange2() {
+//        return new DirectExchange(exchangeName);
+//    }
 
     // bind queue to the exchange using routing key
     @Bean
@@ -102,6 +106,8 @@ public class RabbitMQConfig {
     @Bean
     public MessageConverter converter2() {
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule()); // added to fix Instant time from LoginResponse to rabbitmq
+
         return new Jackson2JsonMessageConverter(objectMapper);
     }
 

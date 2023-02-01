@@ -1,5 +1,6 @@
 package com.faithfulolaleru.IdentityAPI.config.rabbitmq;
 
+import com.faithfulolaleru.IdentityAPI.dto.LoginResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,13 @@ public class RabbitMQProducer {
         log.info(String.format("Message sent --> %s", message));
 
         rabbitTemplate.convertAndSend(exchangeName, routingKey, message);
+
+    }
+
+    public void sendMessage2(LoginResponse response) {
+        log.info(String.format("Message sent --> %s", response.toString()));
+
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, response);
 
     }
 

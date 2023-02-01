@@ -3,6 +3,7 @@ package com.faithfulolaleru.IdentityAPI.login;
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserEntity;
 import com.faithfulolaleru.IdentityAPI.appUser.AppUserService;
 import com.faithfulolaleru.IdentityAPI.config.jwt.JwtService;
+import com.faithfulolaleru.IdentityAPI.config.rabbitmq.RabbitMQProducer;
 import com.faithfulolaleru.IdentityAPI.dto.LoginRequest;
 import com.faithfulolaleru.IdentityAPI.dto.LoginResponse;
 import com.faithfulolaleru.IdentityAPI.exception.ErrorResponse;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 // @AllArgsConstructor
 public record LoginService(JwtService jwtService, AppUserService appUserService,
-                           AuthenticationManager authenticationManager) {
+           AuthenticationManager authenticationManager, RabbitMQProducer rabbitMQProducer) {
 
     public LoginResponse loginAppUser(LoginRequest requestDto) {
 
@@ -44,10 +45,16 @@ public record LoginService(JwtService jwtService, AppUserService appUserService,
             );
         }
 
-//        AppUserEntity appUser = appUserService.loadUserByUsername(requestDto.getEmail());
+        // AppUserEntity appUser = appUserService.loadUserByUsername(requestDto.getEmail());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return jwtService.generateToken(authentication);
+        LoginResponse loginResponse = jwtService.generateToken(authentication);
+
+        // send rabbitmq message to queue
+        // rabbitMQProducer.sendMessage2(loginResponse);
+        rabbitMQProducer.sendMessage(String.format("Token of loggedIn user --> %s", loginResponse.getToken()));
+
+        return loginResponse;
 
     }
 }
