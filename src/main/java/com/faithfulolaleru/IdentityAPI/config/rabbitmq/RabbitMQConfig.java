@@ -98,11 +98,13 @@ public class RabbitMQConfig {
         return new RabbitAdmin(connectionFactory2());
     }
 
+    // works for string being sent to rabbitmq queue
     @Bean
     public Jackson2JsonMessageConverter converter() {
         return new Jackson2JsonMessageConverter();
     }
 
+    // works for when you sending LoginResponse/any object to rabbitmq queue
     @Bean
     public MessageConverter converter2() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -115,7 +117,7 @@ public class RabbitMQConfig {
     // @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public RabbitTemplate rabbitTemplate() {
         RabbitTemplate template = new RabbitTemplate(connectionFactory2());
-        template.setMessageConverter(converter());
+        template.setMessageConverter(converter2());
 
         return template;
     }
