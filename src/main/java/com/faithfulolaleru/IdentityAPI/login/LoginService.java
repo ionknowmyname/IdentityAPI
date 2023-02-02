@@ -51,10 +51,9 @@ public record LoginService(JwtService jwtService, AppUserService appUserService,
         LoginResponse loginResponse = jwtService.generateToken(authentication);
 
         // send rabbitmq message to queue
+        rabbitMQProducer.sendMessage(String.format("Token of loggedIn user --> %s", loginResponse.getToken()));
         rabbitMQProducer.sendMessage2(loginResponse);
-        // rabbitMQProducer.sendMessage(String.format("Token of loggedIn user --> %s", loginResponse.getToken()));
 
         return loginResponse;
-
     }
 }

@@ -30,11 +30,17 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.queue.name}")
     private String queueName;
 
+    @Value("${rabbitmq.queue.json.name}")
+    private String jsonQueueName;
+
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
+
+    @Value("${rabbitmq.json.routing.key}")
+    private String jsonRoutingKey;
 
 //    @Value("${spring.rabbitmq.virtual-host}")
 //    private String virtualHost;
@@ -45,6 +51,12 @@ public class RabbitMQConfig {
     public Queue queue() {
         return new Queue(queueName);
     }
+
+    @Bean
+    public Queue jsonQueue() {
+        return new Queue(jsonQueueName);
+    }
+
 
     @Bean
     public TopicExchange exchange() {
@@ -63,6 +75,14 @@ public class RabbitMQConfig {
                 .bind(queue())
                 .to(exchange())
                 .with(routingKey);
+    }
+
+    @Bean
+    public Binding jsonBinding() {
+        return BindingBuilder
+                .bind(jsonQueue())
+                .to(exchange())
+                .with(jsonRoutingKey);
     }
 
     /*
@@ -121,6 +141,7 @@ public class RabbitMQConfig {
 
         return template;
     }
+
 
     /*
         @Bean

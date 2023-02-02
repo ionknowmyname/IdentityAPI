@@ -16,6 +16,9 @@ public class RabbitMQProducer {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
+    @Value("${rabbitmq.json.routing.key}")
+    private String jsonRoutingKey;
+
     private final RabbitTemplate rabbitTemplate;
 
     public RabbitMQProducer(RabbitTemplate rabbitTemplate) {
@@ -28,14 +31,12 @@ public class RabbitMQProducer {
         log.info(String.format("Message sent --> %s", message));
 
         rabbitTemplate.convertAndSend(exchangeName, routingKey, message);
-
     }
 
     public void sendMessage2(LoginResponse response) {
         log.info(String.format("Message sent --> %s", response.toString()));
 
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, response);
-
+        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, response);
     }
 
 
