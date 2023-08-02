@@ -35,7 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter  {
         final String jwt;
         final String userEmail;
         if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response); // call next filter on filter chain before bailing out
             return;
         }
 
